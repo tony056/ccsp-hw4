@@ -15,7 +15,7 @@ function switch_target(url, num){
 function writeTofile(data){
 	fs.writeFile('appledaily.json', data, 'utf8', function(err){
 		if(err) throw err;
-		console.log('it is saved!');
+		//console.log('it is saved!');
 	});
 }
 appledaily = [];
@@ -29,13 +29,48 @@ function initAppledaily(){
 		};
 		appledaily.push(type);
 	});
+
+}
+
+function findBigest(data){
+	var ans;
+	var num = 0;
+	data.map(function(content, index){
+		if(content.news_count > num){
+			num = content.news_count;
+			ans = content;
+		}
+	});
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1;
+	var min = today.getMinutes();
+	var hr = today.getHours(); 
+	var yyyy = today.getFullYear();
+	if(dd<10) {
+	    dd='0'+dd
+	} 
+
+	if(mm<10) {
+	    mm='0'+mm
+	}  
+
+	if(min < 10){
+		min = '0' + min;
+	}
+	if(hr < 10){
+		hr = '0' + hr;
+	}
+	today = yyyy + '/'+ mm+'/'+ dd + ' '+ hr +':' + min;
+	console.log('' + today + ' - 新聞數量最多的分類為為 [' + ans.category + '], 共有' + ans.news_count+'則新聞');
 }
 initAppledaily();
-//console.log(appledaily);
+
 function crawler(){
 	request(switch_target(target_url, index + 1), function(err, response, body){
 		if(err) return err;
 		if(index === 5){
+			findBigest(appledaily);
 			appledaily = JSON.stringify(appledaily, null, 4);
 			writeTofile(appledaily);
 			return;
